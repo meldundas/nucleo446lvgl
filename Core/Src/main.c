@@ -21,7 +21,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "lvgl.h"
+#include "lv_examples.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -31,7 +32,10 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define TFT_HOR_RES 320
+#define TFT_VER_RES 240
 
+#define BYTES_PER_PIXEL LV_COLOR_FORMAT_GET_SIZE(LV_COLOR_FORMAT_RGB565)
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -50,7 +54,9 @@ TIM_HandleTypeDef htim3;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
+uint8_t buf1[TFT_HOR_RES*TFT_VER_RES / 30 * BYTES_PER_PIXEL];	//5120
 
+lv_display_t * display1;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -67,6 +73,37 @@ static void MX_TIM3_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void tft_flush_cb(lv_display_t * display, const lv_area_t * area, uint8_t * px_map)
+{
+
+    uint16_t height = area->y2 - area->y1 + 1;
+    uint16_t width = area->x2 - area->x1 + 1;
+
+	Displ_SetAddressWindow(area->x1, area->y1, area->x2, area->y2);
+
+	uint16_t * buf16 = (uint16_t *)px_map; /* Let's say it's a 16 bit (RGB565) display */
+
+	   //NON DMA - 20 fps at 80-90% CPU
+
+	   /* The most simple case (also the slowest) to send all rendered pixels to the screen one-by-one. */
+
+//    int32_t x, y;
+//   for(y = area->y1; y <= area->y2; y++) {
+//        for(x = area->x1; x <= area->x2; x++) {
+//        	Displ_Pixel(x, y, *buf16);
+//            buf16++;
+//        }
+//   }
+
+	   //DMA - 60 fps at 3-5% CPU
+
+      Displ_Transmit(SPI_DATA, (uint8_t *)buf16, height*width*2, 1 );  	//1 swaps bytes for 8 bit spi
+    																	//*2 sending bytes not uint16_t
+
+    /* IMPORTANT!!!
+     * Inform LVGL that flushing is complete so buffer can be modified again. */
+    lv_display_flush_ready(display);
+}
 
 /* USER CODE END 0 */
 
@@ -106,16 +143,30 @@ int main(void)
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
 //(if Direct Handling)
-  Displ_Init(Displ_Orientat_0);			// initialize display controller - set orientation parameter as per your needs
-  Displ_CLS(BLACK);						// clear the screen - BLACK or any other color you prefer
+  Displ_Init(Displ_Orientat_90);		// initialize display controller - set orientation parameter as per your needs
+  Displ_CLS(RED);						// clear the screen - BLACK or any other color you prefer
   Displ_BackLight('I'); 				// initialize backlight
 
+  //setup lvgl
+  lv_init();
+  lv_tick_set_cb(HAL_GetTick);
+
+  //setup lvgl screen resolution and rendering
+  display1 = lv_display_create(TFT_HOR_RES, TFT_VER_RES);
+  lv_display_set_buffers(display1, buf1, NULL, sizeof(buf1), LV_DISPLAY_RENDER_MODE_PARTIAL);
+  lv_display_set_flush_cb(display1, tft_flush_cb);
+
+
+  lv_example_get_started_1();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+
+	  lv_timer_handler();
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

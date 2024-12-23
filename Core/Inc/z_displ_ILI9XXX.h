@@ -320,6 +320,10 @@ void Displ_Init(Displ_Orientat_e orientation);
 void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi);
 void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi);
 
+//mel
+void Displ_SetAddressWindow(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
+void Displ_Transmit(GPIO_PinState DC_Status, uint8_t* data, uint16_t dataSize, uint8_t isTouchGFXBuffer );
+
 uint32_t  Displ_BackLight(uint8_t cmd);
 
 

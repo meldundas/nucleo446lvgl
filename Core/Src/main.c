@@ -23,11 +23,18 @@
 /* USER CODE BEGIN Includes */
 #include "lvgl.h"
 #include "lv_examples.h"
+#include "lv_example_anim.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
+typedef struct {
+	uint8_t isTouch;
+	uint16_t Xpos;
+	uint16_t Ypos;
+}sTouchData;
 
+sTouchData tData;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -105,6 +112,18 @@ void tft_flush_cb(lv_display_t * display, const lv_area_t * area, uint8_t * px_m
     lv_display_flush_ready(display);
 }
 
+
+void my_input_read(lv_indev_t * indev, lv_indev_data_t * data)
+{
+    if(tData.isTouch) {
+        data->point.x = tData.Xpos;
+        data->point.y = tData.Ypos;
+        data->state = LV_INDEV_STATE_PRESSED;
+    } else {
+        data->state = LV_INDEV_STATE_RELEASED;
+    }
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -156,14 +175,23 @@ int main(void)
   lv_display_set_buffers(display1, buf1, NULL, sizeof(buf1), LV_DISPLAY_RENDER_MODE_PARTIAL);
   lv_display_set_flush_cb(display1, tft_flush_cb);
 
+  /* Create and set up at least one display before you register any input devices. */
+  lv_indev_t * indev = lv_indev_create();        /* Create input device connected to Default Display. */
 
-  lv_example_get_started_1();
+  lv_indev_set_type(indev, LV_INDEV_TYPE_POINTER);
+
+  lv_indev_set_read_cb(indev, my_input_read);    /* Set driver function. */
+
+//  lv_example_get_started_4();
+  lv_example_anim_1();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+
+	  Touch_GetXYtouch(&tData.Xpos, &tData.Ypos, &tData.isTouch);
 
 	  lv_timer_handler();
 

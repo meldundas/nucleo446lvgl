@@ -21,9 +21,13 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stdbool.h>
 #include "lvgl.h"
 #include "lv_examples.h"
 #include "lv_example_anim.h"
+#include "ui.h"  		//eezstudio
+#include "vars.h"		//eezstudio
+#include "actions.h" 	//eezstudio"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -64,6 +68,8 @@ UART_HandleTypeDef huart2;
 uint8_t buf1[TFT_HOR_RES*TFT_VER_RES / 30 * BYTES_PER_PIXEL];	//5120
 
 lv_display_t * display1;
+
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -75,11 +81,29 @@ static void MX_CRC_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
-
+void set_var_b1_button(int32_t value);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+
+void action_red_led_event(lv_event_t * e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+
+    if(code == LV_EVENT_PRESSED) {
+        LV_LOG_USER("Clicked");
+        HAL_GPIO_WritePin(RED_GPIO_Port, RED_Pin, GPIO_PIN_SET);
+    }
+
+    if(code == LV_EVENT_RELEASED) {
+        LV_LOG_USER("Released");
+        HAL_GPIO_WritePin(RED_GPIO_Port, RED_Pin, GPIO_PIN_RESET);
+    }
+
+}
+
 void tft_flush_cb(lv_display_t * display, const lv_area_t * area, uint8_t * px_map)
 {
 
@@ -183,15 +207,29 @@ int main(void)
   lv_indev_set_read_cb(indev, my_input_read);    /* Set driver function. */
 
 //  lv_example_get_started_4();
-  lv_example_anim_1();
+//  lv_example_anim_1();
+
+  //For eezstudio
+   ui_init();
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+		  if(HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin))
+		  {
+			  lv_led_set_brightness(objects.led, 0);		//screen led off
+		  }
+		  else
+		  {
+			  lv_led_set_brightness(objects.led, 255);		//screen led on
+		  }
 
 	  Touch_GetXYtouch(&tData.Xpos, &tData.Ypos, &tData.isTouch);
+
+	  ui_tick();
 
 	  lv_timer_handler();
 
@@ -449,14 +487,14 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(DISPL_DC_GPIO_Port, DISPL_DC_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(TOUCH_CS_GPIO_Port, TOUCH_CS_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, TOUCH_CS_Pin|RED_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, DISPL_CS_Pin|DISPL_RST_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : B1_Pin */
   GPIO_InitStruct.Pin = B1_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
 
@@ -467,12 +505,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(DISPL_DC_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : TOUCH_CS_Pin */
-  GPIO_InitStruct.Pin = TOUCH_CS_Pin;
+  /*Configure GPIO pins : TOUCH_CS_Pin RED_Pin */
+  GPIO_InitStruct.Pin = TOUCH_CS_Pin|RED_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(TOUCH_CS_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pin : TOUCH_INT_Pin */
   GPIO_InitStruct.Pin = TOUCH_INT_Pin;

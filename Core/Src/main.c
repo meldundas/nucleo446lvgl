@@ -28,6 +28,7 @@
 #include "ui.h"  		//eezstudio
 #include "vars.h"		//eezstudio
 #include "actions.h" 	//eezstudio"
+//#include "lv_theme_material.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -88,18 +89,52 @@ void set_var_b1_button(int32_t value);
 /* USER CODE BEGIN 0 */
 
 
-void action_red_led_event(lv_event_t * e)
+void action_led_event(lv_event_t * e)
 {
     lv_event_code_t code = lv_event_get_code(e);
+    int userdata = (int)lv_event_get_user_data(e);
 
-    if(code == LV_EVENT_PRESSED) {
-        LV_LOG_USER("Clicked");
-        HAL_GPIO_WritePin(RED_GPIO_Port, RED_Pin, GPIO_PIN_SET);
-    }
 
-    if(code == LV_EVENT_RELEASED) {
-        LV_LOG_USER("Released");
-        HAL_GPIO_WritePin(RED_GPIO_Port, RED_Pin, GPIO_PIN_RESET);
+    switch(userdata)
+    {
+    case 'R':
+        if(code == LV_EVENT_PRESSED) {
+            LV_LOG_USER("Red Clicked");
+            HAL_GPIO_WritePin(RED_GPIO_Port, RED_Pin, GPIO_PIN_SET);
+        }
+
+        if(code == LV_EVENT_RELEASED) {
+            LV_LOG_USER("Red Released");
+            HAL_GPIO_WritePin(RED_GPIO_Port, RED_Pin, GPIO_PIN_RESET);
+        }
+        break;
+
+
+    case 'G':
+        if(code == LV_EVENT_PRESSED) {
+            LV_LOG_USER("Green Clicked");
+            HAL_GPIO_WritePin(GREEN_GPIO_Port, GREEN_Pin, GPIO_PIN_SET);
+        }
+
+        if(code == LV_EVENT_RELEASED) {
+            LV_LOG_USER("Green Released");
+            HAL_GPIO_WritePin(GREEN_GPIO_Port, GREEN_Pin, GPIO_PIN_RESET);
+        }
+        break;
+
+
+
+    case 'B':
+        if(code == LV_EVENT_PRESSED) {
+            LV_LOG_USER("Blue Clicked");
+            HAL_GPIO_WritePin(BLUE_GPIO_Port, BLUE_Pin, GPIO_PIN_SET);
+        }
+
+        if(code == LV_EVENT_RELEASED) {
+            LV_LOG_USER("Blue Released");
+            HAL_GPIO_WritePin(BLUE_GPIO_Port, BLUE_Pin, GPIO_PIN_RESET);
+        }
+        break;
     }
 
 }
@@ -209,8 +244,12 @@ int main(void)
 //  lv_example_get_started_4();
 //  lv_example_anim_1();
 
+
+
   //For eezstudio
-   ui_init();
+  ui_init();
+
+   //lv_theme_set_current(lv_theme_material_init(LV_THEME_MATERIAL_DARK, &lv_disp_get_default()->scr, &lv_palette_main(LV_PALETTE_BLUE),lv_palette_main(LV_PALETTE_LIGHT_BLUE), LV_FONT_DEFAULT));
 
   /* USER CODE END 2 */
 
@@ -221,10 +260,17 @@ int main(void)
 		  if(HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin))
 		  {
 			  lv_led_set_brightness(objects.led, 0);		//screen led off
+
+			  lv_obj_add_flag(objects.ledon, LV_OBJ_FLAG_HIDDEN);  	 //hide
+			  lv_obj_clear_flag(objects.ledoff, LV_OBJ_FLAG_HIDDEN); //show
+
 		  }
 		  else
 		  {
 			  lv_led_set_brightness(objects.led, 255);		//screen led on
+
+			  lv_obj_add_flag(objects.ledoff, LV_OBJ_FLAG_HIDDEN);  //hide
+			  lv_obj_clear_flag(objects.ledon, LV_OBJ_FLAG_HIDDEN); //show
 		  }
 
 	  Touch_GetXYtouch(&tData.Xpos, &tData.Ypos, &tData.isTouch);
@@ -484,10 +530,10 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(DISPL_DC_GPIO_Port, DISPL_DC_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, RED_Pin|DISPL_DC_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, TOUCH_CS_Pin|RED_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, GREEN_Pin|BLUE_Pin|TOUCH_CS_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, DISPL_CS_Pin|DISPL_RST_Pin, GPIO_PIN_RESET);
@@ -498,15 +544,15 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : DISPL_DC_Pin */
-  GPIO_InitStruct.Pin = DISPL_DC_Pin;
+  /*Configure GPIO pins : RED_Pin DISPL_DC_Pin */
+  GPIO_InitStruct.Pin = RED_Pin|DISPL_DC_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(DISPL_DC_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : TOUCH_CS_Pin RED_Pin */
-  GPIO_InitStruct.Pin = TOUCH_CS_Pin|RED_Pin;
+  /*Configure GPIO pins : GREEN_Pin BLUE_Pin TOUCH_CS_Pin */
+  GPIO_InitStruct.Pin = GREEN_Pin|BLUE_Pin|TOUCH_CS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

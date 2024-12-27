@@ -72,8 +72,14 @@ void Error_Handler(void);
 #define TOUCH_MISO_GPIO_Port GPIOA
 #define DIDPL_MOSI_Pin GPIO_PIN_7
 #define DIDPL_MOSI_GPIO_Port GPIOA
+#define RED_Pin GPIO_PIN_4
+#define RED_GPIO_Port GPIOC
 #define DISPL_DC_Pin GPIO_PIN_5
 #define DISPL_DC_GPIO_Port GPIOC
+#define GREEN_Pin GPIO_PIN_1
+#define GREEN_GPIO_Port GPIOB
+#define BLUE_Pin GPIO_PIN_2
+#define BLUE_GPIO_Port GPIOB
 #define TOUCH_CS_Pin GPIO_PIN_14
 #define TOUCH_CS_GPIO_Port GPIOB
 #define TOUCH_INT_Pin GPIO_PIN_15
@@ -91,8 +97,6 @@ void Error_Handler(void);
 #define TCK_GPIO_Port GPIOA
 #define SWO_Pin GPIO_PIN_3
 #define SWO_GPIO_Port GPIOB
-#define RED_Pin GPIO_PIN_5
-#define RED_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

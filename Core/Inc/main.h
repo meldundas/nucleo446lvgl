@@ -33,6 +33,7 @@ extern "C" {
 /* USER CODE BEGIN Includes */
 #include "z_displ_ILI9XXX.h"
 #include "z_touch_XPT2046.h"
+#include "z_flash_W25QXXX.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -62,10 +63,16 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define B1_Pin GPIO_PIN_13
 #define B1_GPIO_Port GPIOC
+#define FLASH_MOSI_Pin GPIO_PIN_1
+#define FLASH_MOSI_GPIO_Port GPIOC
+#define FLASH_MISO_Pin GPIO_PIN_2
+#define FLASH_MISO_GPIO_Port GPIOC
 #define USART_TX_Pin GPIO_PIN_2
 #define USART_TX_GPIO_Port GPIOA
 #define USART_RX_Pin GPIO_PIN_3
 #define USART_RX_GPIO_Port GPIOA
+#define FLASH_CS_Pin GPIO_PIN_4
+#define FLASH_CS_GPIO_Port GPIOA
 #define DISPL_SCK_Pin GPIO_PIN_5
 #define DISPL_SCK_GPIO_Port GPIOA
 #define TOUCH_MISO_Pin GPIO_PIN_6
@@ -80,6 +87,8 @@ void Error_Handler(void);
 #define GREEN_GPIO_Port GPIOB
 #define BLUE_Pin GPIO_PIN_2
 #define BLUE_GPIO_Port GPIOB
+#define FLASH_SCK_Pin GPIO_PIN_10
+#define FLASH_SCK_GPIO_Port GPIOB
 #define TOUCH_CS_Pin GPIO_PIN_14
 #define TOUCH_CS_GPIO_Port GPIOB
 #define TOUCH_INT_Pin GPIO_PIN_15

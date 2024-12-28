@@ -24,6 +24,14 @@ void create_screen_main() {
     {
         lv_obj_t *parent_obj = obj;
         {
+            // background
+            lv_obj_t *obj = lv_img_create(parent_obj);
+            objects.background = obj;
+            lv_obj_set_pos(obj, 0, 0);
+            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+            lv_img_set_src(obj, &img_background);
+        }
+        {
             lv_obj_t *obj = lv_label_create(parent_obj);
             objects.obj0 = obj;
             lv_obj_set_pos(obj, 84, 10);

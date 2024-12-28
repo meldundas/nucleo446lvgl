@@ -28,6 +28,7 @@
 #include "ui.h"  		//eezstudio
 #include "vars.h"		//eezstudio
 #include "actions.h" 	//eezstudio"
+#include "images.h"
 //#include "lv_theme_material.h"
 /* USER CODE END Includes */
 
@@ -59,6 +60,7 @@ sTouchData tData;
 CRC_HandleTypeDef hcrc;
 
 SPI_HandleTypeDef hspi1;
+SPI_HandleTypeDef hspi2;
 DMA_HandleTypeDef hdma_spi1_tx;
 
 TIM_HandleTypeDef htim3;
@@ -81,6 +83,7 @@ static void MX_USART2_UART_Init(void);
 static void MX_CRC_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_TIM3_Init(void);
+static void MX_SPI2_Init(void);
 /* USER CODE BEGIN PFP */
 void set_var_b1_button(int32_t value);
 /* USER CODE END PFP */
@@ -142,12 +145,13 @@ void action_led_event(lv_event_t * e)
 void tft_flush_cb(lv_display_t * display, const lv_area_t * area, uint8_t * px_map)
 {
 
-    uint16_t height = area->y2 - area->y1 + 1;
+	uint16_t height = area->y2 - area->y1 + 1;
     uint16_t width = area->x2 - area->x1 + 1;
 
 	Displ_SetAddressWindow(area->x1, area->y1, area->x2, area->y2);
 
 	uint16_t * buf16 = (uint16_t *)px_map; /* Let's say it's a 16 bit (RGB565) display */
+
 
 	   //NON DMA - 20 fps at 80-90% CPU
 
@@ -164,7 +168,7 @@ void tft_flush_cb(lv_display_t * display, const lv_area_t * area, uint8_t * px_m
 	   //DMA - 60 fps at 3-5% CPU
 
       Displ_Transmit(SPI_DATA, (uint8_t *)buf16, height*width*2, 1 );  	//1 swaps bytes for 8 bit spi
-    																	//*2 sending bytes not uint16_t
+																	//*2 sending bytes not uint16_t
 
     /* IMPORTANT!!!
      * Inform LVGL that flushing is complete so buffer can be modified again. */
@@ -219,6 +223,7 @@ int main(void)
   MX_CRC_Init();
   MX_SPI1_Init();
   MX_TIM3_Init();
+  MX_SPI2_Init();
   /* USER CODE BEGIN 2 */
 //(if Direct Handling)
   Displ_Init(Displ_Orientat_90);		// initialize display controller - set orientation parameter as per your needs
@@ -248,6 +253,14 @@ int main(void)
 
   //For eezstudio
   ui_init();
+
+#define LEDOFF_ADDRESS 0x4b000
+
+//  uint32_t address_value = LEDOFF_ADDRESS;
+
+ // uint16_t *ptr_uint16 = (uint16_t*)address_value;
+
+ // 	Flash_Read(loffbuff, (uint16_t*)ptr_uint16, 153600);
 
    //lv_theme_set_current(lv_theme_material_init(LV_THEME_MATERIAL_DARK, &lv_disp_get_default()->scr, &lv_palette_main(LV_PALETTE_BLUE),lv_palette_main(LV_PALETTE_LIGHT_BLUE), LV_FONT_DEFAULT));
 
@@ -405,6 +418,44 @@ static void MX_SPI1_Init(void)
 }
 
 /**
+  * @brief SPI2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_SPI2_Init(void)
+{
+
+  /* USER CODE BEGIN SPI2_Init 0 */
+
+  /* USER CODE END SPI2_Init 0 */
+
+  /* USER CODE BEGIN SPI2_Init 1 */
+
+  /* USER CODE END SPI2_Init 1 */
+  /* SPI2 parameter configuration*/
+  hspi2.Instance = SPI2;
+  hspi2.Init.Mode = SPI_MODE_MASTER;
+  hspi2.Init.Direction = SPI_DIRECTION_2LINES;
+  hspi2.Init.DataSize = SPI_DATASIZE_8BIT;
+  hspi2.Init.CLKPolarity = SPI_POLARITY_LOW;
+  hspi2.Init.CLKPhase = SPI_PHASE_1EDGE;
+  hspi2.Init.NSS = SPI_NSS_SOFT;
+  hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+  hspi2.Init.FirstBit = SPI_FIRSTBIT_MSB;
+  hspi2.Init.TIMode = SPI_TIMODE_DISABLE;
+  hspi2.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+  hspi2.Init.CRCPolynomial = 10;
+  if (HAL_SPI_Init(&hspi2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN SPI2_Init 2 */
+
+  /* USER CODE END SPI2_Init 2 */
+
+}
+
+/**
   * @brief TIM3 Initialization Function
   * @param None
   * @retval None
@@ -530,19 +581,26 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOA, FLASH_CS_Pin|DISPL_CS_Pin|DISPL_RST_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, RED_Pin|DISPL_DC_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, GREEN_Pin|BLUE_Pin|TOUCH_CS_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, DISPL_CS_Pin|DISPL_RST_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : B1_Pin */
   GPIO_InitStruct.Pin = B1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : FLASH_CS_Pin DISPL_CS_Pin DISPL_RST_Pin */
+  GPIO_InitStruct.Pin = FLASH_CS_Pin|DISPL_CS_Pin|DISPL_RST_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : RED_Pin DISPL_DC_Pin */
   GPIO_InitStruct.Pin = RED_Pin|DISPL_DC_Pin;
@@ -563,13 +621,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(TOUCH_INT_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : DISPL_CS_Pin DISPL_RST_Pin */
-  GPIO_InitStruct.Pin = DISPL_CS_Pin|DISPL_RST_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);

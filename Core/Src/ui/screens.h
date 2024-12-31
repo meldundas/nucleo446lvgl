@@ -12,9 +12,9 @@ typedef struct _objects_t {
     lv_obj_t *obj0;
     lv_obj_t *led;
     lv_obj_t *blue_button;
-    lv_obj_t *obj1;
+    lv_obj_t *bluebutton;
     lv_obj_t *green_button;
-    lv_obj_t *obj2;
+    lv_obj_t *greenlabel;
     lv_obj_t *red_button;
     lv_obj_t *redlabel;
     lv_obj_t *ledoff;

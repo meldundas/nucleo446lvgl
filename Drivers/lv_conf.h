@@ -69,7 +69,8 @@
 
 #if LV_USE_STDLIB_MALLOC == LV_STDLIB_BUILTIN
     /** Size of memory available for `lv_malloc()` in bytes (>= 2kB) */
-    #define LV_MEM_SIZE (64 * 1024U)          /**< [bytes] */
+    #define LV_MEM_SIZE (100 * 1024U)          /**< [bytes] */ //can do 110 on the 446
+//    #define LV_MEM_SIZE (64 * 1024U)          /**< [bytes] */
 
     /** Size of the memory expand for `lv_malloc()` in bytes */
     #define LV_MEM_POOL_EXPAND_SIZE 0
@@ -853,7 +854,7 @@
 #endif
 
 /** LODEPNG decoder library */
-#define LV_USE_LODEPNG 0
+#define LV_USE_LODEPNG 1 //mel
 
 /** PNG decoder(libpng) library */
 #define LV_USE_LIBPNG 0

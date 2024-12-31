@@ -249,6 +249,18 @@ int main(void)
   //For eezstudio
   ui_init();
 
+
+/// LV_IMAGE_DECLARE(img_star);
+//  LV_IMAGE_DECLARE(img_ledoff);
+
+//  LV_IMAGE_DECLARE(img_cogwheel_rgb);
+///   lv_obj_t * img;
+//
+///   img = lv_img_create(objects.main);
+///   lv_image_set_src(img, &img_star);
+//   lv_image_set_src(img, &img_ledoff);
+ //  lv_obj_align(img, LV_ALIGN_LEFT_MID, 50, 0);
+///   lv_obj_set_pos(img, 197, 86);
    //lv_theme_set_current(lv_theme_material_init(LV_THEME_MATERIAL_DARK, &lv_disp_get_default()->scr, &lv_palette_main(LV_PALETTE_BLUE),lv_palette_main(LV_PALETTE_LIGHT_BLUE), LV_FONT_DEFAULT));
 
   /* USER CODE END 2 */

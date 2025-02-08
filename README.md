@@ -9,4 +9,4 @@ LED light bulb lights when the Nucleo button is
 
 ![pinout](docs/pics/pinout.png)
 
-More details of the steps that were required to use LVGL and EEZStudio is in the docs folder,  (docs/README.md)
+More details of the steps that were required to use LVGL and EEZStudio is in the docs folder,  [docs/README.md](docs/README.md)
